@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'telas/login.dart';
+import 'telas/register.dart';
+import 'telas/anuncios.dart';
+import 'telas/blank.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,11 +18,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.light,
-        primarySwatch: Colors.deepPurple,
+        primarySwatch: Colors.cyan,
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        primarySwatch: Colors.deepPurple,
+        primarySwatch: Colors.cyan,
       ),
       themeMode: ThemeMode.dark,
       home: const MyHomePage(title: 'Loja'),
@@ -41,7 +44,9 @@ class _MyHomePageState extends State<MyHomePage>
   bool _loggedin = false;
   int _selectedIndex = 0;
   late final AnimationController _controller;
-  List<Widget> _widgetOptions = [];
+  PageController _pageController = PageController(initialPage: 0);
+  List<Widget> _widgetOptionsL = [];
+  List<Widget> _widgetOptionsNL = [];
 
   @override
   void initState() {
@@ -50,17 +55,11 @@ class _MyHomePageState extends State<MyHomePage>
       vsync: this,
       duration: Duration(milliseconds: 400),
     );
-    _widgetOptions = <Widget>[
+    _widgetOptionsL = <Widget>[AnunciosScreen(), BlankScreen()];
+    _widgetOptionsNL = <Widget>[
       LoginScreen(),
-      const Text(
-        'Index 1: Business',
-      ),
-      const Text(
-        'Index 2: School',
-      ),
-      const Text(
-        'Fodaseeeeee',
-      )
+      RegisterScreen(),
+      AnunciosScreen(),
     ];
   }
 
@@ -75,9 +74,8 @@ class _MyHomePageState extends State<MyHomePage>
       _visible = false;
     else
       _visible = true;
-    setState(() {
-      _selectedIndex = index;
-    });
+    _pageController.animateToPage(index,
+        duration: Duration(milliseconds: 500), curve: Curves.ease);
   }
 
   final List<BottomNavigationBarItem> _bottomMenuNLogged =
@@ -92,9 +90,8 @@ class _MyHomePageState extends State<MyHomePage>
       _visible = false;
     else
       _visible = true;
-    setState(() {
-      _selectedIndex = index;
-    });
+    _pageController.animateToPage(index,
+        duration: Duration(milliseconds: 500), curve: Curves.ease);
   }
 
   List _appBars = [AppBar(title: Text("Loja")), null];
@@ -108,8 +105,21 @@ class _MyHomePageState extends State<MyHomePage>
         child: _appBars[0],
       ),
       body: Center(
-          child: _widgetOptions
-              .elementAt(_loggedin ? _selectedIndex + 2 : _selectedIndex)),
+          child: PageView(
+        children: _loggedin ? _widgetOptionsL : _widgetOptionsNL,
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            if (index == 0 && _loggedin)
+              _visible = true;
+            else if (index == 2 && !_loggedin)
+              _visible = true;
+            else
+              _visible = false;
+            _selectedIndex = index;
+          });
+        },
+      )),
       bottomNavigationBar: BottomNavigationBar(
           items: _loggedin ? _bottomMenuLogged : _bottomMenuNLogged,
           backgroundColor: Colors.black38,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatelessWidget {
+class RegisterScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -15,8 +15,21 @@ class LoginScreen extends StatelessWidget {
     );
 
     final titleLabel = Text(
-      "Já possuo uma conta.",
+      "Ainda não possuo uma conta.",
       style: TextStyle(color: Colors.white, fontSize: 20),
+    );
+
+    final name = TextFormField(
+      keyboardType: TextInputType.name,
+      autofocus: false,
+      style: TextStyle(color: Colors.white70),
+      decoration: InputDecoration(
+        labelStyle: TextStyle(color: Colors.white),
+        labelText: "Nome",
+        hintText: 'Digite seu nome.',
+        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
+      ),
     );
 
     final email = TextFormField(
@@ -56,29 +69,9 @@ class LoginScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(24),
           ),
         ),
-        child: Text('Entrar', style: TextStyle(color: Colors.white)),
+        child: Text('Registrar', style: TextStyle(color: Colors.white)),
       ),
     );
-
-    final forgotLabel = TextButton(
-        child: Text(
-          'Esqueceu sua senha?',
-          style: TextStyle(color: Colors.white70),
-        ),
-        onPressed: () {
-          showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                      title: Text("Não implementado."),
-                      content: Text("Não espere pelo dia que isso funcionará."),
-                      actions: [
-                        ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text('Voltar'))
-                      ]));
-        });
 
     return Scaffold(
       body: Center(
@@ -93,12 +86,13 @@ class LoginScreen extends StatelessWidget {
               height: 20.0,
               width: 100,
             ),
+            name,
+            SizedBox(height: 8.0),
             email,
             SizedBox(height: 8.0),
             password,
             SizedBox(height: 24.0),
             loginButton,
-            forgotLabel
           ],
         ),
       ),
