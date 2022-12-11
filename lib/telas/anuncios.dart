@@ -322,7 +322,7 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                                                   if (tituloC.text == "" ||
                                                       precoC.text == "" ||
                                                       telefoneC.text == "" ||
-                                                      descricaoC == "" ||
+                                                      descricaoC.text == "" ||
                                                       image == null) {
                                                     Navigator.pop(context);
                                                     showDialog(
