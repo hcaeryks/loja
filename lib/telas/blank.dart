@@ -1,8 +1,31 @@
 import 'package:flutter/material.dart';
 
 class BlankScreen extends StatelessWidget {
+  final Function() notifyParent;
+  final Function() goBack;
+  const BlankScreen(
+      {Key? key, required this.notifyParent, required this.goBack})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center());
+    return AlertDialog(
+      icon: Icon(Icons.door_back_door_outlined),
+      title: Text("Sair"),
+      content: Text("Tem certeza de que quer sair da sua conta?"),
+      actions: <Widget>[
+        TextButton(
+            child: const Text("Sim"),
+            onPressed: () {
+              notifyParent();
+            }),
+        TextButton(
+          child: const Text("Não"),
+          onPressed: () {
+            goBack();
+          },
+        )
+      ],
+    );
   }
 }

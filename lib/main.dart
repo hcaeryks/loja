@@ -6,6 +6,29 @@ import 'telas/register.dart';
 import 'telas/anuncios.dart';
 import 'telas/blank.dart';
 
+/*
+
+
+
+
+
+
+
+
+  A tabela advertisement mencionada no classroom não tem foreign key pra
+  user, tornando impossível saber quem fez qual anúncio, pra não adicionar
+  mais complexidade ao trabalho, fiz com que qualquer usuário logado possa
+  editar, remover e criar qualquer anúncio.
+
+
+
+
+
+
+
+
+*/
+
 void main() {
   runApp(const MyApp());
 }
@@ -20,11 +43,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.light,
-        primarySwatch: Colors.cyan,
+        primarySwatch: Colors.lightBlue,
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        primarySwatch: Colors.cyan,
+        primarySwatch: Colors.lightBlue,
       ),
       themeMode: ThemeMode.dark,
       home: const MyHomePage(title: 'Loja'),
@@ -101,6 +124,70 @@ class _MyHomePageState extends State<MyHomePage>
     _anuncios = anuncios;
   }
 
+  void _logOut() {
+    setState(() {
+      _loggedin = false;
+      _widgetOptionsL[0] = AnunciosScreen(loggedin: _loggedin);
+      _widgetOptionsNL[2] = AnunciosScreen(loggedin: _loggedin);
+    });
+  }
+
+  void _goBack() {
+    _pageController.animateToPage(0,
+        duration: const Duration(milliseconds: 500), curve: Curves.ease);
+  }
+
+  void _login(String email, String password) async {
+    Database db = await _recoverDataBase();
+    String sql = "SELECT COUNT(id) FROM user WHERE email = ? AND password = ?";
+    var res = await db.rawQuery(sql, [email, password]);
+    int count = res[0]["COUNT(id)"] as int;
+    if (count > 0) {
+      setState(() {
+        _loggedin = true;
+        _visible = true;
+        _widgetOptionsL[0] = AnunciosScreen(loggedin: _loggedin);
+        _widgetOptionsNL[2] = AnunciosScreen(loggedin: _loggedin);
+      });
+      _pageController.animateToPage(0,
+          duration: const Duration(milliseconds: 500), curve: Curves.ease);
+    } else {
+      showDialog(
+          context: this.context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Erro"),
+              content: const Text("Falha ao entrar na conta."),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("Ok"))
+              ],
+            );
+          });
+    }
+  }
+
+  void _register(String name, String email, String password) async {
+    Database db = await _recoverDataBase();
+
+    Map<String, dynamic> userData = {
+      "name": name,
+      "email": email,
+      "password": password
+    };
+
+    int id = await db.insert("user", userData);
+    setState(() {
+      _loggedin = true;
+      _visible = true;
+      _widgetOptionsL[0] = AnunciosScreen(loggedin: _loggedin);
+      _widgetOptionsNL[2] = AnunciosScreen(loggedin: _loggedin);
+    });
+    _pageController.animateToPage(0,
+        duration: const Duration(milliseconds: 500), curve: Curves.ease);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -108,11 +195,25 @@ class _MyHomePageState extends State<MyHomePage>
       vsync: this,
       duration: Duration(milliseconds: 400),
     );
-    _widgetOptionsL = <Widget>[AnunciosScreen(), BlankScreen()];
+    _widgetOptionsL = <Widget>[
+      AnunciosScreen(
+        loggedin: _loggedin,
+      ),
+      BlankScreen(
+        notifyParent: _logOut,
+        goBack: _goBack,
+      )
+    ];
     _widgetOptionsNL = <Widget>[
-      LoginScreen(),
-      RegisterScreen(),
-      AnunciosScreen(),
+      LoginScreen(
+        login: _login,
+      ),
+      RegisterScreen(
+        register: _register,
+      ),
+      AnunciosScreen(
+        loggedin: _loggedin,
+      ),
     ];
   }
 
@@ -128,7 +229,7 @@ class _MyHomePageState extends State<MyHomePage>
     else
       _visible = true;
     _pageController.animateToPage(index,
-        duration: Duration(milliseconds: 500), curve: Curves.ease);
+        duration: const Duration(milliseconds: 500), curve: Curves.ease);
   }
 
   final List<BottomNavigationBarItem> _bottomMenuNLogged =
@@ -147,7 +248,7 @@ class _MyHomePageState extends State<MyHomePage>
         duration: Duration(milliseconds: 500), curve: Curves.ease);
   }
 
-  List _appBars = [AppBar(title: Text("Loja")), null];
+  List _appBars = [AppBar(title: Text("Anúncios encontrados:")), null];
 
   @override
   Widget build(BuildContext context) {

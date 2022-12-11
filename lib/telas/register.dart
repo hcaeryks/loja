@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 class RegisterScreen extends StatelessWidget {
-  final _formKey = GlobalKey<FormState>();
+  final nameC = TextEditingController();
+  final emailC = TextEditingController();
+  final passC = TextEditingController();
+  final Function(String name, String email, String password) register;
+  RegisterScreen({
+    Key? key,
+    required this.register,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +27,7 @@ class RegisterScreen extends StatelessWidget {
     );
 
     final name = TextFormField(
+      controller: nameC,
       keyboardType: TextInputType.name,
       autofocus: false,
       style: TextStyle(color: Colors.white70),
@@ -33,6 +41,7 @@ class RegisterScreen extends StatelessWidget {
     );
 
     final email = TextFormField(
+      controller: emailC,
       keyboardType: TextInputType.emailAddress,
       autofocus: false,
       style: TextStyle(color: Colors.white70),
@@ -46,6 +55,7 @@ class RegisterScreen extends StatelessWidget {
     );
 
     final password = TextFormField(
+      controller: passC,
       autofocus: false,
       obscureText: true,
       style: TextStyle(color: Colors.white70),
@@ -61,7 +71,10 @@ class RegisterScreen extends StatelessWidget {
     final loginButton = Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          register(name.controller!.text, email.controller!.text,
+              password.controller!.text);
+        },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.all(12),
           backgroundColor: Colors.cyan,

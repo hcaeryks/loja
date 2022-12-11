@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatelessWidget {
-  final _formKey = GlobalKey<FormState>();
+  final emailC = TextEditingController();
+  final passC = TextEditingController();
+  final Function(String email, String password) login;
+  LoginScreen({
+    Key? key,
+    required this.login,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +26,7 @@ class LoginScreen extends StatelessWidget {
     );
 
     final email = TextFormField(
+      controller: emailC,
       keyboardType: TextInputType.emailAddress,
       autofocus: false,
       style: TextStyle(color: Colors.white70),
@@ -33,6 +40,7 @@ class LoginScreen extends StatelessWidget {
     );
 
     final password = TextFormField(
+      controller: passC,
       autofocus: false,
       obscureText: true,
       style: TextStyle(color: Colors.white70),
@@ -48,7 +56,9 @@ class LoginScreen extends StatelessWidget {
     final loginButton = Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          login(email.controller!.text, password.controller!.text);
+        },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.all(12),
           backgroundColor: Colors.cyan,
