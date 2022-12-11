@@ -67,7 +67,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
-  bool _visible = true;
+  bool _visible = false;
   bool _loggedin = false;
   int _selectedIndex = 0;
   int _queryResCount = 0;
@@ -112,17 +112,19 @@ class _MyHomePageState extends State<MyHomePage>
     Database db = await _recoverDataBase();
     List anuncios = [];
     if (categoria == "" && regiao == "") {
-      String sql = "SELECT * FROM advertisement";
+      String sql = "SELECT * FROM advertisement ORDER BY id DESC";
       anuncios = await db.rawQuery(sql);
     } else if (categoria == "" && regiao != "") {
-      String sql = "SELECT * FROM advertisement WHERE state = ?";
+      String sql =
+          "SELECT * FROM advertisement WHERE state = ? ORDER BY id DESC";
       anuncios = await db.rawQuery(sql, [regiao]);
     } else if (categoria != "" && regiao == "") {
-      String sql = "SELECT * FROM advertisement WHERE category = ?";
+      String sql =
+          "SELECT * FROM advertisement WHERE category = ? ORDER BY id DESC";
       anuncios = await db.rawQuery(sql, [categoria]);
     } else if (categoria != "" && regiao != "") {
       String sql =
-          "SELECT * FROM advertisement WHERE category = ? AND state = ?";
+          "SELECT * FROM advertisement WHERE category = ? AND state = ? ORDER BY id DESC";
       anuncios = await db.rawQuery(sql, [categoria, regiao]);
     }
 
@@ -141,6 +143,7 @@ class _MyHomePageState extends State<MyHomePage>
         insert: _insert,
         list: _list,
         remove: _deleteById,
+        edit: _updateById,
       );
       _widgetOptionsNL[2] = AnunciosScreen(
         loggedin: _loggedin,
@@ -148,6 +151,7 @@ class _MyHomePageState extends State<MyHomePage>
         insert: _insert,
         list: _list,
         remove: _deleteById,
+        edit: _updateById,
       );
     });
   }
@@ -172,6 +176,7 @@ class _MyHomePageState extends State<MyHomePage>
           insert: _insert,
           list: _list,
           remove: _deleteById,
+          edit: _updateById,
         );
         _widgetOptionsNL[2] = AnunciosScreen(
           loggedin: _loggedin,
@@ -179,6 +184,7 @@ class _MyHomePageState extends State<MyHomePage>
           insert: _insert,
           list: _list,
           remove: _deleteById,
+          edit: _updateById,
         );
       });
       _pageController.animateToPage(0,
@@ -219,6 +225,7 @@ class _MyHomePageState extends State<MyHomePage>
         insert: _insert,
         list: _list,
         remove: _deleteById,
+        edit: _updateById,
       );
       _widgetOptionsNL[2] = AnunciosScreen(
         loggedin: _loggedin,
@@ -226,6 +233,7 @@ class _MyHomePageState extends State<MyHomePage>
         insert: _insert,
         list: _list,
         remove: _deleteById,
+        edit: _updateById,
       );
     });
     _pageController.animateToPage(0,
@@ -236,7 +244,7 @@ class _MyHomePageState extends State<MyHomePage>
       String telefone, String descricao, XFile? foto) async {
     Database db = await _recoverDataBase();
     Uint8List? blob = await foto?.readAsBytes();
-    Map<String, dynamic> userData = {
+    Map<String, dynamic> anuncioData = {
       "title": titulo,
       "state": regiao,
       "category": categoria,
@@ -245,7 +253,7 @@ class _MyHomePageState extends State<MyHomePage>
       "description": descricao,
       "photo": blob
     };
-    await db.insert("advertisement", userData);
+    await db.insert("advertisement", anuncioData);
     _list(categoria, regiao);
     setState(() {
       _widgetOptionsL[0] = AnunciosScreen(
@@ -254,6 +262,7 @@ class _MyHomePageState extends State<MyHomePage>
         insert: _insert,
         list: _list,
         remove: _deleteById,
+        edit: _updateById,
       );
       _widgetOptionsNL[2] = AnunciosScreen(
         loggedin: _loggedin,
@@ -261,6 +270,7 @@ class _MyHomePageState extends State<MyHomePage>
         insert: _insert,
         list: _list,
         remove: _deleteById,
+        edit: _updateById,
       );
     });
   }
@@ -269,10 +279,28 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {});
   }
 
-  _deleteById(int id) async {
+  void _deleteById(int id) async {
     Database db = await _recoverDataBase();
-    //CRUD -> Create, Read, Update and Delete
     await db.delete("advertisement", where: "id = ?", whereArgs: [id]);
+  }
+
+  void _updateById(int id, String titulo, String regiao, String categoria,
+      String preco, String telefone, String descricao, XFile? foto) async {
+    Database db = await _recoverDataBase();
+
+    Uint8List? blob = await foto?.readAsBytes();
+    Map<String, dynamic> anuncioData = {
+      "id": id,
+      "title": titulo,
+      "state": regiao,
+      "category": categoria,
+      "photo": blob,
+      "price": int.parse(preco),
+      "description": descricao,
+      "telephone": telefone
+    };
+    await db
+        .update("advertisement", anuncioData, where: "id = ?", whereArgs: [id]);
   }
 
   @override
@@ -289,6 +317,7 @@ class _MyHomePageState extends State<MyHomePage>
         insert: _insert,
         list: _list,
         remove: _deleteById,
+        edit: _updateById,
       ),
       BlankScreen(
         notifyParent: _logOut,
@@ -308,6 +337,7 @@ class _MyHomePageState extends State<MyHomePage>
         insert: _insert,
         list: _list,
         remove: _deleteById,
+        edit: _updateById,
       ),
     ];
     _list("", "");

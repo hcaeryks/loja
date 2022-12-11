@@ -9,6 +9,8 @@ class AnunciosScreen extends StatefulWidget {
   final Function(String categoria, String regiao) list;
   final Function(String titulo, String regiao, String categoria, String preco,
       String telefone, String descricao, XFile? foto) insert;
+  final Function(int id, String titulo, String regiao, String categoria,
+      String preco, String telefone, String descricao, XFile? foto) edit;
   const AnunciosScreen({
     Key? key,
     required this.loggedin,
@@ -16,6 +18,7 @@ class AnunciosScreen extends StatefulWidget {
     required this.insert,
     required this.list,
     required this.remove,
+    required this.edit,
   }) : super(key: key);
 
   @override
@@ -138,7 +141,7 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                             Dismissible(
                               onDismissed: (DismissDirection direction) {
                                 if (direction == DismissDirection.endToStart) {
-                                  widget.remove(i);
+                                  widget.remove(snapshot.data![i]["id"]);
                                   itemList = widget.list(_categoria, _regiao);
                                   setState(() {});
                                 } else if (direction ==
@@ -215,6 +218,125 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                                   return confirm;
                                 } else if (direction ==
                                     DismissDirection.startToEnd) {
+                                  await showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        var aux = snapshot.data![i];
+                                        _categoria = aux["category"];
+                                        _regiao = aux["state"];
+                                        tituloC.text = aux["title"];
+                                        precoC.text =
+                                            aux["price"].toInt().toString();
+                                        telefoneC.text = aux["telephone"];
+                                        descricaoC.text = aux["description"];
+                                        return AlertDialog(
+                                          title: const Text("Editar anúncio"),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              TextField(
+                                                  controller: tituloC,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                          labelText: "Título:"),
+                                                  onChanged: (text) {}),
+                                              TextField(
+                                                  controller: precoC,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                          labelText: "Preço:"),
+                                                  onChanged: (text) {}),
+                                              TextField(
+                                                  controller: telefoneC,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                          labelText:
+                                                              "Telefone:"),
+                                                  onChanged: (text) {}),
+                                              TextField(
+                                                  controller: descricaoC,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                          labelText:
+                                                              "Descrição:"),
+                                                  onChanged: (text) {}),
+                                              DropdownButtonFormField(
+                                                decoration:
+                                                    const InputDecoration(
+                                                        labelText:
+                                                            "Categoria:"),
+                                                value: _categoria,
+                                                onChanged: (val) {
+                                                  _categoria = val ?? "";
+                                                  widget.refresh();
+                                                },
+                                                icon: const Icon(
+                                                    Icons.keyboard_arrow_down),
+                                                items: _categorias
+                                                    .map((String item) {
+                                                  return DropdownMenuItem(
+                                                    value: item,
+                                                    child: Text(item),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                              DropdownButtonFormField(
+                                                decoration:
+                                                    const InputDecoration(
+                                                        labelText: "Região:"),
+                                                value: _regiao,
+                                                onChanged: (val) {
+                                                  _regiao = val ?? "";
+                                                  widget.refresh();
+                                                },
+                                                icon: const Icon(
+                                                    Icons.keyboard_arrow_down),
+                                                items:
+                                                    _regioes.map((String item) {
+                                                  return DropdownMenuItem(
+                                                    value: item,
+                                                    child: Text(item),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                              Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(10),
+                                                  child: ElevatedButton(
+                                                      onPressed: () {
+                                                        getImage();
+                                                        widget.refresh();
+                                                      },
+                                                      child: const Text(
+                                                          "Enviar Imagem (Obrigatório)")))
+                                            ],
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text("Cancelar")),
+                                            TextButton(
+                                                onPressed: () {
+                                                  widget.edit(
+                                                      aux["id"],
+                                                      tituloC.text,
+                                                      _regiao,
+                                                      _categoria,
+                                                      precoC.text,
+                                                      telefoneC.text,
+                                                      descricaoC.text,
+                                                      image);
+                                                  itemList = widget.list(
+                                                      _categoria, _regiao);
+                                                  setState(() {});
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text("Salvar")),
+                                          ],
+                                        );
+                                      });
                                   return false;
                                 }
                                 return null;
@@ -306,11 +428,12 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                     ];
                   }
                   return Center(
+                      child: SingleChildScrollView(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: children,
                     ),
-                  );
+                  ));
                 },
               )
             ])),
