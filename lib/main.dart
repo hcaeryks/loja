@@ -72,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage>
   int _selectedIndex = 0;
   int _queryResCount = 0;
   late final AnimationController _controller;
-  PageController _pageController = PageController(initialPage: 0);
+  final PageController _pageController = PageController(initialPage: 0);
   List<Widget> _widgetOptionsL = [];
   List<Widget> _widgetOptionsNL = [];
 
@@ -209,7 +209,7 @@ class _MyHomePageState extends State<MyHomePage>
       "password": password
     };
 
-    int id = await db.insert("user", userData);
+    await db.insert("user", userData);
     setState(() {
       _loggedin = true;
       _visible = true;
@@ -245,7 +245,7 @@ class _MyHomePageState extends State<MyHomePage>
       "description": descricao,
       "photo": blob
     };
-    int id = await db.insert("advertisement", userData);
+    await db.insert("advertisement", userData);
     _list(categoria, regiao);
     setState(() {
       _widgetOptionsL[0] = AnunciosScreen(
@@ -272,8 +272,7 @@ class _MyHomePageState extends State<MyHomePage>
   _deleteById(int id) async {
     Database db = await _recoverDataBase();
     //CRUD -> Create, Read, Update and Delete
-    int response =
-        await db.delete("advertisement", where: "id = ?", whereArgs: [id]);
+    await db.delete("advertisement", where: "id = ?", whereArgs: [id]);
   }
 
   @override
@@ -281,7 +280,7 @@ class _MyHomePageState extends State<MyHomePage>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 400),
     );
     _widgetOptionsL = <Widget>[
       AnunciosScreen(
@@ -321,10 +320,11 @@ class _MyHomePageState extends State<MyHomePage>
   ];
 
   _onTapLogged(int index) {
-    if (index == 1)
+    if (index == 1) {
       _visible = false;
-    else
+    } else {
       _visible = true;
+    }
     _pageController.animateToPage(index,
         duration: const Duration(milliseconds: 500), curve: Curves.ease);
   }
@@ -337,37 +337,39 @@ class _MyHomePageState extends State<MyHomePage>
   ];
 
   _onTapNLogged(int index) {
-    if (index == 0 || index == 1)
+    if (index == 0 || index == 1) {
       _visible = false;
-    else
+    } else {
       _visible = true;
+    }
     _pageController.animateToPage(index,
-        duration: Duration(milliseconds: 500), curve: Curves.ease);
+        duration: const Duration(milliseconds: 500), curve: Curves.ease);
   }
 
   @override
   Widget build(BuildContext context) {
-    List _appBars = [
-      AppBar(title: Text("Anúncios encontrados: " + _queryResCount.toString())),
+    List appBars = [
+      AppBar(title: Text("Anúncios encontrados: $_queryResCount")),
       null
     ];
     return Scaffold(
       appBar: SlidingAppBar(
         controller: _controller,
         visible: _visible,
-        child: _appBars[0],
+        child: appBars[0],
       ),
       body: Center(
           child: PageView(
         controller: _pageController,
         onPageChanged: (index) {
           setState(() {
-            if (index == 0 && _loggedin)
+            if (index == 0 && _loggedin) {
               _visible = true;
-            else if (index == 2 && !_loggedin)
+            } else if (index == 2 && !_loggedin) {
               _visible = true;
-            else
+            } else {
               _visible = false;
+            }
             _selectedIndex = index;
           });
         },
@@ -385,7 +387,8 @@ class _MyHomePageState extends State<MyHomePage>
 }
 
 class SlidingAppBar extends StatelessWidget implements PreferredSizeWidget {
-  SlidingAppBar({
+  const SlidingAppBar({
+    super.key,
     required this.child,
     required this.controller,
     required this.visible,
@@ -402,7 +405,8 @@ class SlidingAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     visible ? controller.reverse() : controller.forward();
     return SlideTransition(
-      position: Tween<Offset>(begin: Offset.zero, end: Offset(0, -1)).animate(
+      position:
+          Tween<Offset>(begin: Offset.zero, end: const Offset(0, -1)).animate(
         CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn),
       ),
       child: child,

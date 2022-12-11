@@ -3,13 +3,13 @@ import 'package:image_picker/image_picker.dart';
 import 'anuncio.dart';
 
 class AnunciosScreen extends StatefulWidget {
-  bool loggedin;
+  final bool loggedin;
   final Function() refresh;
   final Function(int index) remove;
   final Function(String categoria, String regiao) list;
   final Function(String titulo, String regiao, String categoria, String preco,
       String telefone, String descricao, XFile? foto) insert;
-  AnunciosScreen({
+  const AnunciosScreen({
     Key? key,
     required this.loggedin,
     required this.refresh,
@@ -107,7 +107,7 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                               }).toList(),
                             ))),
                     Padding(
-                        padding: EdgeInsets.all(5),
+                        padding: const EdgeInsets.all(5),
                         child: ElevatedButton(
                             onPressed: () {
                               itemList = widget.list(_categoria, _regiao);
@@ -125,7 +125,7 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                   List<Widget> children;
                   if (snapshot.hasData) {
                     children = <Widget>[
-                      for (int i = 0; i < (snapshot.data!.length ?? 0); i++)
+                      for (int i = 0; i < (snapshot.data!.length); i++)
                         Column(
                           children: [
                             const Divider(
@@ -217,6 +217,7 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                                     DismissDirection.startToEnd) {
                                   return false;
                                 }
+                                return null;
                               },
                               key: UniqueKey(),
                               child: InkWell(
@@ -323,7 +324,7 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                     context: context,
                     builder: (context) {
                       return AlertDialog(
-                        title: Text("Adicionar anúncio"),
+                        title: const Text("Adicionar anúncio"),
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -364,7 +365,8 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                               }).toList(),
                             ),
                             DropdownButtonFormField(
-                              decoration: InputDecoration(labelText: "Região:"),
+                              decoration:
+                                  const InputDecoration(labelText: "Região:"),
                               value: _regiao,
                               onChanged: (val) {
                                 _regiao = val ?? "";
@@ -379,7 +381,7 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                               }).toList(),
                             ),
                             Padding(
-                                padding: EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 child: ElevatedButton(
                                     onPressed: () {
                                       getImage();

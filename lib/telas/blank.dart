@@ -10,9 +10,9 @@ class BlankScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      icon: Icon(Icons.door_back_door_outlined),
-      title: Text("Sair"),
-      content: Text("Tem certeza de que quer sair da sua conta?"),
+      icon: const Icon(Icons.door_back_door_outlined),
+      title: const Text("Sair"),
+      content: const Text("Tem certeza de que quer sair da sua conta?"),
       actions: <Widget>[
         TextButton(
             child: const Text("Sim"),
