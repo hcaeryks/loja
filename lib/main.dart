@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 import 'telas/login.dart';
 import 'telas/register.dart';
 import 'telas/anuncios.dart';
@@ -47,6 +49,57 @@ class _MyHomePageState extends State<MyHomePage>
   PageController _pageController = PageController(initialPage: 0);
   List<Widget> _widgetOptionsL = [];
   List<Widget> _widgetOptionsNL = [];
+  List _anuncios = [];
+
+  _recoverDataBase() async {
+    final databasePath = await getDatabasesPath();
+
+    final path = join(databasePath, "banco.db");
+    Database db =
+        await openDatabase(path, version: 1, onCreate: (db, version) async {
+      String sql = """
+            CREATE TABLE user(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name VARCHAR NOT NULL,
+                email VARCHAR NOT NULL,
+                password VARCHAR NOT NULL
+            );
+            CREATE TABLE advertisement(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                state VARCHAR(2) NOT NULL,
+                category VARCHAR NOT NULL,
+                title TEXT NOT NULL,
+                price REAL NOT NULL,
+                telephone VARCHAR(20) NOT NULL,
+                description TEXT NOT NULL,
+                photo BLOB
+            );
+            """;
+      await db.execute(sql);
+    });
+
+    return db;
+  }
+
+  _list(String categoria, String regiao) async {
+    Database db = await _recoverDataBase();
+    List anuncios = [];
+    if (categoria == "" && regiao == "") {
+      String sql = "SELECT * FROM advertisement";
+      anuncios = await db.rawQuery(sql);
+    } else if (categoria == "" && regiao != "") {
+      String sql = "SELECT * FROM advertisement WHERE state = ?";
+      anuncios = await db.rawQuery(sql, [regiao]);
+    } else if (categoria != "" && regiao == "") {
+      String sql = "SELECT * FROM advertisement WHERE category = ?";
+      anuncios = await db.rawQuery(sql, [categoria]);
+    } else if (categoria != "" && regiao != "") {
+      String sql =
+          "SELECT * FROM advertisement WHERE category = ? AND state = ?";
+      anuncios = await db.rawQuery(sql, [categoria, regiao]);
+    }
+    _anuncios = anuncios;
+  }
 
   @override
   void initState() {
