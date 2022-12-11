@@ -57,7 +57,26 @@ class LoginScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: ElevatedButton(
         onPressed: () {
-          login(email.controller!.text, password.controller!.text);
+          if (email.controller!.text == "" || password.controller!.text == "") {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text("Erro"),
+                    content: const Text(
+                        "Preencha todos os campos antes de continuar."),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Ok"))
+                    ],
+                  );
+                });
+          } else {
+            login(email.controller!.text, password.controller!.text);
+          }
         },
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.all(12),

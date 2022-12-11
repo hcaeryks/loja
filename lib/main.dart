@@ -135,8 +135,11 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _logOut() {
+    _pageController.animateToPage(0,
+        duration: const Duration(milliseconds: 500), curve: Curves.ease);
     setState(() {
       _loggedin = false;
+      _visible = false;
       _widgetOptionsL[0] = AnunciosScreen(
         loggedin: _loggedin,
         refresh: _refresh,

@@ -319,19 +319,48 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                                                 child: const Text("Cancelar")),
                                             TextButton(
                                                 onPressed: () {
-                                                  widget.edit(
-                                                      aux["id"],
-                                                      tituloC.text,
-                                                      _regiao,
-                                                      _categoria,
-                                                      precoC.text,
-                                                      telefoneC.text,
-                                                      descricaoC.text,
-                                                      image);
+                                                  if (tituloC.text == "" ||
+                                                      precoC.text == "" ||
+                                                      telefoneC.text == "" ||
+                                                      descricaoC == "" ||
+                                                      image == null) {
+                                                    Navigator.pop(context);
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return AlertDialog(
+                                                            title: const Text(
+                                                                "Erro"),
+                                                            content: const Text(
+                                                                "Preencha todos os campos antes de continuar."),
+                                                            actions: [
+                                                              TextButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                  },
+                                                                  child:
+                                                                      const Text(
+                                                                          "Ok"))
+                                                            ],
+                                                          );
+                                                        });
+                                                  } else {
+                                                    widget.edit(
+                                                        aux["id"],
+                                                        tituloC.text,
+                                                        _regiao,
+                                                        _categoria,
+                                                        precoC.text,
+                                                        telefoneC.text,
+                                                        descricaoC.text,
+                                                        image);
+                                                    Navigator.pop(context);
+                                                  }
                                                   itemList = widget.list(
                                                       _categoria, _regiao);
                                                   setState(() {});
-                                                  Navigator.pop(context);
                                                 },
                                                 child: const Text("Salvar")),
                                           ],
@@ -521,17 +550,41 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                               child: const Text("Cancelar")),
                           TextButton(
                               onPressed: () {
-                                widget.insert(
-                                    tituloC.text,
-                                    _regiao,
-                                    _categoria,
-                                    precoC.text,
-                                    telefoneC.text,
-                                    descricaoC.text,
-                                    image);
+                                if (tituloC.text == "" ||
+                                    precoC.text == "" ||
+                                    telefoneC.text == "" ||
+                                    descricaoC.text == "" ||
+                                    image == null) {
+                                  Navigator.pop(context);
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: const Text("Erro"),
+                                          content: const Text(
+                                              "Preencha todos os campos antes de continuar."),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text("Ok"))
+                                          ],
+                                        );
+                                      });
+                                } else {
+                                  widget.insert(
+                                      tituloC.text,
+                                      _regiao,
+                                      _categoria,
+                                      precoC.text,
+                                      telefoneC.text,
+                                      descricaoC.text,
+                                      image);
+                                  Navigator.pop(context);
+                                }
                                 itemList = widget.list(_categoria, _regiao);
                                 setState(() {});
-                                Navigator.pop(context);
                               },
                               child: const Text("Salvar")),
                         ],
