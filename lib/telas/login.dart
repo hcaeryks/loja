@@ -61,12 +61,12 @@ class LoginScreen extends StatelessWidget {
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.all(12),
-          backgroundColor: Colors.cyan,
+          backgroundColor: Colors.cyanAccent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
         ),
-        child: Text('Entrar', style: TextStyle(color: Colors.white)),
+        child: Text('Entrar', style: TextStyle(color: Colors.black)),
       ),
     );
 

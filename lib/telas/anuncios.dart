@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'anuncio.dart';
 
 class AnunciosScreen extends StatefulWidget {
   bool loggedin;
   final Function() refresh;
+  final Function(int index) remove;
   final Function(String categoria, String regiao) list;
   final Function(String titulo, String regiao, String categoria, String preco,
       String telefone, String descricao, XFile? foto) insert;
@@ -13,6 +15,7 @@ class AnunciosScreen extends StatefulWidget {
     required this.refresh,
     required this.insert,
     required this.list,
+    required this.remove,
   }) : super(key: key);
 
   @override
@@ -110,6 +113,8 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                               itemList = widget.list(_categoria, _regiao);
                               setState(() {});
                             },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.cyanAccent),
                             child: const Text("Filtrar")))
                   ],
                 ),
@@ -119,37 +124,160 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                 builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
                   List<Widget> children;
                   if (snapshot.hasData) {
-                    print(snapshot.data);
                     children = <Widget>[
-                      for (var item in snapshot.data ?? [])
+                      for (int i = 0; i < (snapshot.data!.length ?? 0); i++)
                         Column(
                           children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Container(
-                                    margin: const EdgeInsets.all(10),
-                                    width: 80,
-                                    height: 80,
-                                    child: Image.memory(item["photo"])),
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(item["title"]),
-                                    const Text("price")
-                                  ],
-                                )
-                              ],
+                            const Divider(
+                              height: 1,
+                              thickness: 1,
+                              indent: 0,
+                              endIndent: 0,
+                              color: Colors.black54,
+                            ),
+                            Dismissible(
+                              onDismissed: (DismissDirection direction) {
+                                if (direction == DismissDirection.endToStart) {
+                                  widget.remove(i);
+                                  itemList = widget.list(_categoria, _regiao);
+                                  setState(() {});
+                                } else if (direction ==
+                                    DismissDirection.startToEnd) {}
+                              },
+                              secondaryBackground: Container(
+                                  color: Colors.red,
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: const [
+                                        Icon(
+                                          Icons.delete,
+                                          color: Colors.white,
+                                        )
+                                      ])),
+                              background: Container(
+                                  color: Colors.orange,
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: const [
+                                        Icon(
+                                          Icons.edit,
+                                          color: Colors.white,
+                                        )
+                                      ])),
+                              direction: DismissDirection.horizontal,
+                              confirmDismiss: (direction) async {
+                                if (widget.loggedin == false) {
+                                  await showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: const Text("Erro"),
+                                          content: const Text(
+                                              "É necessário estar logado para executar essa operação."),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text("Ok"))
+                                          ],
+                                        );
+                                      });
+                                  return false;
+                                }
+                                if (direction == DismissDirection.endToStart) {
+                                  bool confirm = false;
+                                  await showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: const Text("Deletar"),
+                                          content: const Text(
+                                              "Tem certeza que deseja remover o anúncio?"),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text("Não")),
+                                            TextButton(
+                                                onPressed: () {
+                                                  confirm = true;
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text("Sim"))
+                                          ],
+                                        );
+                                      });
+                                  return confirm;
+                                } else if (direction ==
+                                    DismissDirection.startToEnd) {
+                                  return false;
+                                }
+                              },
+                              key: UniqueKey(),
+                              child: InkWell(
+                                  onTap: () {
+                                    var aux = snapshot.data![i];
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => AnuncioScreen(
+                                                categoria: aux["category"],
+                                                regiao: aux["state"],
+                                                titulo: aux["title"],
+                                                preco: aux["price"],
+                                                descricao: aux["description"],
+                                                telefone: aux["telephone"],
+                                                id: aux["id"],
+                                                foto: aux["photo"])));
+                                  },
+                                  child: Container(
+                                      color: Colors.black12,
+                                      child: Row(children: [
+                                        Expanded(
+                                            flex: 3,
+                                            child: Image.memory(
+                                                snapshot.data![i]["photo"])),
+                                        Expanded(
+                                            flex: 7,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  snapshot.data![i]["title"],
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.cyanAccent),
+                                                ),
+                                                Text(
+                                                    "R\$${snapshot.data![i]["price"]}")
+                                              ],
+                                            )),
+                                      ]))),
                             ),
                             const Divider(
-                              height: 10,
-                              thickness: 2,
-                              indent: 10,
+                              height: 1,
+                              thickness: 1,
+                              indent: 0,
                               endIndent: 0,
                               color: Colors.black54,
                             )
                           ],
-                        )
+                        ),
+                      const Padding(
+                          padding: EdgeInsets.all(30),
+                          child: Text(
+                            "Fim da lista.",
+                            style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.cyanAccent,
+                                fontWeight: FontWeight.normal),
+                          ))
                     ];
                   } else if (snapshot.hasError) {
                     children = <Widget>[
@@ -160,7 +288,7 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 16),
-                        child: Text('Error: ${snapshot.error}'),
+                        child: Text('Erro: ${snapshot.error}'),
                       ),
                     ];
                   } else {
@@ -172,7 +300,7 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: 16),
-                        child: Text('Awaiting result...'),
+                        child: Text('Esperando resultado...'),
                       ),
                     ];
                   }
@@ -287,6 +415,7 @@ class _AnuncioScreen extends State<AnunciosScreen> {
               },
             )
           : FloatingActionButton(
+              backgroundColor: Colors.cyanAccent,
               onPressed: () {
                 showDialog(
                     context: context,

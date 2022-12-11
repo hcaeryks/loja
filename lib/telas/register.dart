@@ -77,12 +77,12 @@ class RegisterScreen extends StatelessWidget {
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.all(12),
-          backgroundColor: Colors.cyan,
+          backgroundColor: Colors.cyanAccent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
         ),
-        child: Text('Registrar', style: TextStyle(color: Colors.white)),
+        child: Text('Registrar', style: TextStyle(color: Colors.black)),
       ),
     );
 

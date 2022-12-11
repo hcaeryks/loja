@@ -1,9 +1,8 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'dart:typed_data';
 import 'telas/login.dart';
 import 'telas/register.dart';
 import 'telas/anuncios.dart';
@@ -46,11 +45,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.light,
-        primarySwatch: Colors.lightBlue,
+        primarySwatch: Colors.cyan,
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        primarySwatch: Colors.lightBlue,
+        primarySwatch: Colors.cyan,
       ),
       themeMode: ThemeMode.dark,
       home: const MyHomePage(title: 'Loja'),
@@ -141,12 +140,14 @@ class _MyHomePageState extends State<MyHomePage>
         refresh: _refresh,
         insert: _insert,
         list: _list,
+        remove: _deleteById,
       );
       _widgetOptionsNL[2] = AnunciosScreen(
         loggedin: _loggedin,
         refresh: _refresh,
         insert: _insert,
         list: _list,
+        remove: _deleteById,
       );
     });
   }
@@ -170,12 +171,14 @@ class _MyHomePageState extends State<MyHomePage>
           refresh: _refresh,
           insert: _insert,
           list: _list,
+          remove: _deleteById,
         );
         _widgetOptionsNL[2] = AnunciosScreen(
           loggedin: _loggedin,
           refresh: _refresh,
           insert: _insert,
           list: _list,
+          remove: _deleteById,
         );
       });
       _pageController.animateToPage(0,
@@ -215,12 +218,14 @@ class _MyHomePageState extends State<MyHomePage>
         refresh: _refresh,
         insert: _insert,
         list: _list,
+        remove: _deleteById,
       );
       _widgetOptionsNL[2] = AnunciosScreen(
         loggedin: _loggedin,
         refresh: _refresh,
         insert: _insert,
         list: _list,
+        remove: _deleteById,
       );
     });
     _pageController.animateToPage(0,
@@ -248,18 +253,27 @@ class _MyHomePageState extends State<MyHomePage>
         refresh: _refresh,
         insert: _insert,
         list: _list,
+        remove: _deleteById,
       );
       _widgetOptionsNL[2] = AnunciosScreen(
         loggedin: _loggedin,
         refresh: _refresh,
         insert: _insert,
         list: _list,
+        remove: _deleteById,
       );
     });
   }
 
   void _refresh() {
     setState(() {});
+  }
+
+  _deleteById(int id) async {
+    Database db = await _recoverDataBase();
+    //CRUD -> Create, Read, Update and Delete
+    int response =
+        await db.delete("advertisement", where: "id = ?", whereArgs: [id]);
   }
 
   @override
@@ -275,6 +289,7 @@ class _MyHomePageState extends State<MyHomePage>
         refresh: _refresh,
         insert: _insert,
         list: _list,
+        remove: _deleteById,
       ),
       BlankScreen(
         notifyParent: _logOut,
@@ -293,6 +308,7 @@ class _MyHomePageState extends State<MyHomePage>
         refresh: _refresh,
         insert: _insert,
         list: _list,
+        remove: _deleteById,
       ),
     ];
     _list("", "");
@@ -343,7 +359,6 @@ class _MyHomePageState extends State<MyHomePage>
       ),
       body: Center(
           child: PageView(
-        children: _loggedin ? _widgetOptionsL : _widgetOptionsNL,
         controller: _pageController,
         onPageChanged: (index) {
           setState(() {
@@ -356,10 +371,12 @@ class _MyHomePageState extends State<MyHomePage>
             _selectedIndex = index;
           });
         },
+        children: _loggedin ? _widgetOptionsL : _widgetOptionsNL,
       )),
       bottomNavigationBar: BottomNavigationBar(
           items: _loggedin ? _bottomMenuLogged : _bottomMenuNLogged,
           backgroundColor: Colors.black38,
+          selectedItemColor: Colors.cyanAccent,
           currentIndex: _selectedIndex,
           showUnselectedLabels: false,
           onTap: _loggedin ? _onTapLogged : _onTapNLogged),
