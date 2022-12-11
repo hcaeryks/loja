@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'telas/login.dart';
@@ -68,25 +71,26 @@ class _MyHomePageState extends State<MyHomePage>
   bool _visible = true;
   bool _loggedin = false;
   int _selectedIndex = 0;
+  int _queryResCount = 0;
   late final AnimationController _controller;
   PageController _pageController = PageController(initialPage: 0);
   List<Widget> _widgetOptionsL = [];
   List<Widget> _widgetOptionsNL = [];
-  List _anuncios = [];
 
   _recoverDataBase() async {
     final databasePath = await getDatabasesPath();
-
-    final path = join(databasePath, "banco.db");
+    final path = join(databasePath, "db1.db");
     Database db =
         await openDatabase(path, version: 1, onCreate: (db, version) async {
-      String sql = """
+      String sql1 = """
             CREATE TABLE user(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name VARCHAR NOT NULL,
                 email VARCHAR NOT NULL,
                 password VARCHAR NOT NULL
             );
+            """;
+      String sql2 = """
             CREATE TABLE advertisement(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 state VARCHAR(2) NOT NULL,
@@ -98,13 +102,14 @@ class _MyHomePageState extends State<MyHomePage>
                 photo BLOB
             );
             """;
-      await db.execute(sql);
+      await db.execute(sql1);
+      await db.execute(sql2);
     });
 
     return db;
   }
 
-  _list(String categoria, String regiao) async {
+  Future<List> _list(String categoria, String regiao) async {
     Database db = await _recoverDataBase();
     List anuncios = [];
     if (categoria == "" && regiao == "") {
@@ -121,14 +126,28 @@ class _MyHomePageState extends State<MyHomePage>
           "SELECT * FROM advertisement WHERE category = ? AND state = ?";
       anuncios = await db.rawQuery(sql, [categoria, regiao]);
     }
-    _anuncios = anuncios;
+
+    setState(() {
+      _queryResCount = anuncios.length;
+    });
+    return anuncios;
   }
 
   void _logOut() {
     setState(() {
       _loggedin = false;
-      _widgetOptionsL[0] = AnunciosScreen(loggedin: _loggedin);
-      _widgetOptionsNL[2] = AnunciosScreen(loggedin: _loggedin);
+      _widgetOptionsL[0] = AnunciosScreen(
+        loggedin: _loggedin,
+        refresh: _refresh,
+        insert: _insert,
+        list: _list,
+      );
+      _widgetOptionsNL[2] = AnunciosScreen(
+        loggedin: _loggedin,
+        refresh: _refresh,
+        insert: _insert,
+        list: _list,
+      );
     });
   }
 
@@ -146,8 +165,18 @@ class _MyHomePageState extends State<MyHomePage>
       setState(() {
         _loggedin = true;
         _visible = true;
-        _widgetOptionsL[0] = AnunciosScreen(loggedin: _loggedin);
-        _widgetOptionsNL[2] = AnunciosScreen(loggedin: _loggedin);
+        _widgetOptionsL[0] = AnunciosScreen(
+          loggedin: _loggedin,
+          refresh: _refresh,
+          insert: _insert,
+          list: _list,
+        );
+        _widgetOptionsNL[2] = AnunciosScreen(
+          loggedin: _loggedin,
+          refresh: _refresh,
+          insert: _insert,
+          list: _list,
+        );
       });
       _pageController.animateToPage(0,
           duration: const Duration(milliseconds: 500), curve: Curves.ease);
@@ -181,11 +210,56 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {
       _loggedin = true;
       _visible = true;
-      _widgetOptionsL[0] = AnunciosScreen(loggedin: _loggedin);
-      _widgetOptionsNL[2] = AnunciosScreen(loggedin: _loggedin);
+      _widgetOptionsL[0] = AnunciosScreen(
+        loggedin: _loggedin,
+        refresh: _refresh,
+        insert: _insert,
+        list: _list,
+      );
+      _widgetOptionsNL[2] = AnunciosScreen(
+        loggedin: _loggedin,
+        refresh: _refresh,
+        insert: _insert,
+        list: _list,
+      );
     });
     _pageController.animateToPage(0,
         duration: const Duration(milliseconds: 500), curve: Curves.ease);
+  }
+
+  void _insert(String titulo, String regiao, String categoria, String preco,
+      String telefone, String descricao, XFile? foto) async {
+    Database db = await _recoverDataBase();
+    Uint8List? blob = await foto?.readAsBytes();
+    Map<String, dynamic> userData = {
+      "title": titulo,
+      "state": regiao,
+      "category": categoria,
+      "price": int.parse(preco),
+      "telephone": telefone,
+      "description": descricao,
+      "photo": blob
+    };
+    int id = await db.insert("advertisement", userData);
+    _list(categoria, regiao);
+    setState(() {
+      _widgetOptionsL[0] = AnunciosScreen(
+        loggedin: _loggedin,
+        refresh: _refresh,
+        insert: _insert,
+        list: _list,
+      );
+      _widgetOptionsNL[2] = AnunciosScreen(
+        loggedin: _loggedin,
+        refresh: _refresh,
+        insert: _insert,
+        list: _list,
+      );
+    });
+  }
+
+  void _refresh() {
+    setState(() {});
   }
 
   @override
@@ -198,6 +272,9 @@ class _MyHomePageState extends State<MyHomePage>
     _widgetOptionsL = <Widget>[
       AnunciosScreen(
         loggedin: _loggedin,
+        refresh: _refresh,
+        insert: _insert,
+        list: _list,
       ),
       BlankScreen(
         notifyParent: _logOut,
@@ -213,8 +290,12 @@ class _MyHomePageState extends State<MyHomePage>
       ),
       AnunciosScreen(
         loggedin: _loggedin,
+        refresh: _refresh,
+        insert: _insert,
+        list: _list,
       ),
     ];
+    _list("", "");
   }
 
   final List<BottomNavigationBarItem> _bottomMenuLogged =
@@ -248,10 +329,12 @@ class _MyHomePageState extends State<MyHomePage>
         duration: Duration(milliseconds: 500), curve: Curves.ease);
   }
 
-  List _appBars = [AppBar(title: Text("Anúncios encontrados:")), null];
-
   @override
   Widget build(BuildContext context) {
+    List _appBars = [
+      AppBar(title: Text("Anúncios encontrados: " + _queryResCount.toString())),
+      null
+    ];
     return Scaffold(
       appBar: SlidingAppBar(
         controller: _controller,
