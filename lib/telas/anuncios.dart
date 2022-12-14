@@ -475,7 +475,9 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                 showDialog(
                     context: context,
                     builder: (context) {
-                      return AlertDialog(
+                      return SingleChildScrollView(
+                        child:
+                      AlertDialog(
                         title: const Text("Adicionar anúncio"),
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -588,6 +590,7 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                               },
                               child: const Text("Salvar")),
                         ],
+                      )
                       );
                     });
               },
