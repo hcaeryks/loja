@@ -407,7 +407,7 @@ class _AnuncioScreen extends State<AnunciosScreen> {
                                                       color: Colors.cyanAccent),
                                                 ),
                                                 Text(
-                                                    "R\$${snapshot.data![i]["price"]}")
+                                                    "R\$${snapshot.data![i]["price"].toStringAsFixed(2)}")
                                               ],
                                             )),
                                       ]))),
