@@ -24,62 +24,76 @@ class AnuncioScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
     return Scaffold(
       body: Center(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(7.5),
-              child: Text(
-                titulo,
-                style: const TextStyle(
-                  fontSize: 20,
-                  color: Colors.cyanAccent,
-                  fontWeight: FontWeight.bold
-                )
-              )
-            ),
-            Padding(
-              padding: const EdgeInsets.all(7.5), 
-              child: SizedBox(
-                width: 0.8*width,
-                height: 0.3*height,
-                child: Image.memory(foto)
-              )
-            ),
-            Padding(
-              padding: const EdgeInsets.all(7.5),
-              child: Text(
-                "Descrição: $descricao",
-                style: const TextStyle(
-                  fontSize: 20,
-                  color: Colors.cyanAccent
-                )
-              )
-            ),
-            Padding(
-              padding: const EdgeInsets.all(7.5),
-              child: Text(
-                  "Preço: ${preco.toStringAsFixed(2)}",
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Expanded(flex: 0, child: Image.memory(foto)),
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: SingleChildScrollView(
+              child: Column(children: [
+            Row(
+              children: [
+                Text(
+                  titulo,
                   style: const TextStyle(
-
-                  )
+                      fontWeight: FontWeight.bold, fontSize: 35),
                 ),
+                const Spacer(),
+                const Text(
+                  "R\$",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.cyanAccent),
+                ),
+                Text(preco.toStringAsFixed(2),
+                    style:
+                        const TextStyle(fontSize: 20, color: Colors.cyanAccent))
+              ],
+            ),
+            Row(
+              children: [
+                Text(categoria,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 15)),
+                const Spacer(),
+                Text(
+                  "@$regiao",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+              ],
             ),
             Padding(
-              padding: const EdgeInsets.all(7.5),
-              child: Text(
-                "Contato: $telefone",
-                style: const TextStyle(
-
-                )
-              )
-            )
-          ]
-        )
-      )
+                padding: const EdgeInsets.all(10),
+                child: Text(descricao, style: const TextStyle(fontSize: 15))),
+          ])),
+        ),
+        const Spacer(),
+        Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(children: [
+              const Text(
+                "Telefone: ",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.cyanAccent),
+              ),
+              Text(
+                telefone,
+                style: const TextStyle(fontSize: 15),
+              ),
+              const Spacer(),
+              const Text(
+                "ID: ",
+                style: TextStyle(fontSize: 12),
+              ),
+              Text(id.toString(), style: const TextStyle(fontSize: 12))
+            ]))
+      ])),
     );
   }
 }
