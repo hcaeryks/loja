@@ -251,7 +251,7 @@ class _MyHomePageState extends State<MyHomePage>
       "title": titulo,
       "state": regiao,
       "category": categoria,
-      "price": int.parse(preco),
+      "price": double.parse(preco),
       "telephone": telefone,
       "description": descricao,
       "photo": blob
@@ -298,7 +298,7 @@ class _MyHomePageState extends State<MyHomePage>
       "state": regiao,
       "category": categoria,
       "photo": blob,
-      "price": int.parse(preco),
+      "price": double.parse(preco),
       "description": descricao,
       "telephone": telefone
     };
