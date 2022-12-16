@@ -100,7 +100,7 @@ class LoginScreen extends StatelessWidget {
               builder: (context) => AlertDialog(
                       title: const Text("Não implementado."),
                       content: const Text(
-                          "Não espere pelo dia que isso funcionará."),
+                          "Funcionalidade não implementada."),
                       actions: [
                         ElevatedButton(
                             onPressed: () {
